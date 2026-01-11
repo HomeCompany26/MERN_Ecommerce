@@ -25,13 +25,23 @@ router.get("/", (req, res) => {
     meta: null,
   });
 });
-router.delete("/:id", (req, res) => {
+router.delete("/:id", (req, res, next) => {
   let id = req.params.id;
-  res.json({
-    result: "delete user of id:" + id,
-    message: "delete user ",
-    meta: null,
-  });
+  let user = req.authUser;
+  if (user.role == "admin") {
+    res.json({
+      result: "delete user of id:" + id,
+      message: "delete user ",
+      meta: null,
+    });
+    next();
+  } else {
+    res.json({
+      result: "access denied",
+      message: "user not deleted ",
+      meta: null,
+    });
+  }
 });
 router.patch("/:id", (req, res) => {
   let id = req.params.id;

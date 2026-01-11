@@ -1,5 +1,4 @@
-const express = require("express");
-const router = express();
+const router = require("express").Router();
 
 router.post("/", (req, res) => {
   let id = req.params.id;
