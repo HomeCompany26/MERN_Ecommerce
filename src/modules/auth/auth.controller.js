@@ -1,15 +1,7 @@
-const Joi = require("joi");
-
 class AuthController {
   register = async (req, res) => {
     try {
       const data = req.body;
-      const registerSchema = Joi.object({
-        name: Joi.string().alphanum().min(3).max(30).required(),
-        email: Joi.string().email().required(),
-      });
-
-      const response = await registerSchema.validateAsync(data);
       res.json({ result: "register user", data: data, meta: null });
     } catch (error) {
       res.json({ result: error, message: error.message, meta: null });

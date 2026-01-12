@@ -1,9 +1,11 @@
 const router = require("express").Router();
 const authCheck = require("../../middlewares/auth.middleware");
 const authCtrl = require("./auth.controller");
+const validator = require("../../middlewares/validator.middleware");
+const { registerSchema } = require("./auth.request");
 
 // register user
-router.post("/register", authCtrl.register);
+router.post("/register", validator(registerSchema), authCtrl.register);
 router.get("/verify/:token", authCtrl.verifyActivationToken);
 router.post("/activation/:token", authCtrl.activateUser);
 
