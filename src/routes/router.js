@@ -21,9 +21,6 @@ router.use("/user", userRouter);
 router.use("/brand", brandRouter);
 router.use("/banner", bannerRouter);
 
-router.use((req, res, next) => {
-  next({ code: 404, message: "route not found" });
-});
 // router.use("/", (req, res) => {
 //   console.log("route not found");
 //   res

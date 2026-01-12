@@ -25,7 +25,7 @@ router.get("/", (req, res) => {
     meta: null,
   });
 });
-router.delete("/:id", (req, res, next) => {
+router.delete("/:id", (req, res) => {
   let id = req.params.id;
   let user = req.authUser;
   if (user.role == "admin") {
@@ -34,9 +34,8 @@ router.delete("/:id", (req, res, next) => {
       message: "delete user ",
       meta: null,
     });
-    next();
   } else {
-    res.json({
+    res.status(403).json({
       result: "access denied",
       message: "user not deleted ",
       meta: null,

@@ -1,19 +1,21 @@
 const router = require("express").Router();
+const authCheck = require("../../middlewares/auth.middleware");
+const authCtrl = require("./auth.controller");
 
-router.post("/register", (req, res) => {
-  res.json({ result: "register user", meta: null });
-});
-router.post("/login", (req, res) => {
-  res.json({ result: "login", meta: null });
-});
-router.post("/forget-password", (req, res) => {
-  res.json({ result: "forget password", meta: null });
-});
-router.post("/reset-password", (req, res) => {
-  res.json({ result: "reset password", meta: null });
-});
-router.get("/logout", (req, res) => {
+// register user
+router.post("/register", authCtrl.register);
+router.get("/verify/:token", authCtrl.verifyActivationToken);
+router.post("/activation/:token", authCtrl.activateUser);
+
+// login process
+router.post("/login", authCtrl.loginUser);
+router.get("/logout", authCheck, (req, res) => {
   res.json({ result: "logout success", meta: null });
 });
+router.get("/me", authCheck, authCtrl.getLoggedInUser);
+
+router.post("/forget-password", authCtrl.sendEmailForForgetPassword);
+router.get("/verify-password-token/:token", authCtrl.verifyForgetPasswordToken);
+router.post("/set-password/:token", authCtrl.updatePassword);
 
 module.exports = router;
