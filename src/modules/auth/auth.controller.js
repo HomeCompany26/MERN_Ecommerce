@@ -1,8 +1,50 @@
+const { randomString } = require("../../config/helper.config");
+const nodemailer = require("nodemailer");
+
 class AuthController {
   register = async (req, res) => {
     try {
-      const data = req.body;
-      res.json({ result: "register user", data: data, meta: null });
+      const payload = req.body;
+      if (req.files) {
+        const images = req.files.map((img) => img.filename);
+        payload.images = images;
+        // console.log(req.files);
+      }
+
+      payload.activationToken = randomString();
+      payload.status = "notActivated";
+      let dbStatus = true;
+      if (dbStatus) {
+        let link =
+          "http://localhost:3000/activate/" + [payload.activationToken];
+        let message = `Dear ${payload.name}, <br/>
+          <p>Your account has been sucessfully registered. please click the link below to activeate your account<p/>
+          <a herf="${link}">${link}</a>
+          <br/>
+          Regards,<br/>
+          System admin<br/>
+          <small>Please do not reply this email.</small>`;
+
+        const transporter = nodemailer.createTransport({
+          host: "smtp.gmail.com",
+          port: 587,
+          secure: false, // Use true for port 465, false for port 587
+          auth: {
+            user: "rabinpjpt@gmail.com",
+            pass: "knnx nsfk uker qqrb",
+          },
+        });
+
+        await transporter.sendMail({
+          from: "no-reply@gmail.com",
+          to: "rbnpjpt@gmail.com",
+          subject: "User Activation",
+          text: payload.message, // Plain-text version of the message
+          html: message,
+        });
+      }
+
+      res.json({ result: "register user", data: payload, meta: null });
     } catch (error) {
       res.json({ result: error, message: error.message, meta: null });
     }

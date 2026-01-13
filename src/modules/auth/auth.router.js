@@ -8,7 +8,7 @@ const uploader = require("../../middlewares/uploader.middleware");
 // register user
 router.post(
   "/register",
-  uploader.single("image"),
+  uploader.array("image"),
   validator(registerSchema),
   authCtrl.register
 );
