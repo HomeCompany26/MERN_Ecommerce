@@ -3,9 +3,15 @@ const authCheck = require("../../middlewares/auth.middleware");
 const authCtrl = require("./auth.controller");
 const validator = require("../../middlewares/validator.middleware");
 const { registerSchema } = require("./auth.request");
+const uploader = require("../../middlewares/uploader.middleware");
 
 // register user
-router.post("/register", validator(registerSchema), authCtrl.register);
+router.post(
+  "/register",
+  uploader.single("image"),
+  validator(registerSchema),
+  authCtrl.register
+);
 router.get("/verify/:token", authCtrl.verifyActivationToken);
 router.post("/activation/:token", authCtrl.activateUser);
 
