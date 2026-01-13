@@ -18,4 +18,25 @@ const myStorage = multer.diskStorage({
   },
 });
 
-const uploader = multer({ storage: myStorage });
+const imageFilter = (req, file, cb) => {
+  const ext = file.originalname.split(".").pop();
+  if (
+    ["jpg", "jped", "png", "svg", "gif", "webp", "bmp"].includes(
+      ext.toLowerCase()
+    )
+  ) {
+    cb(null, true);
+  } else {
+    cb({ code: 422, message: "file format not supported" });
+  }
+};
+
+const uploader = multer({
+  storage: myStorage,
+  fileFilter: imageFilter,
+  limits: {
+    fileSize: 5000000,
+  },
+});
+
+module.exports = uploader;

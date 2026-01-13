@@ -5,9 +5,6 @@ const validator = (schema) => {
       await schema.validateAsync(payload);
       next();
     } catch (error) {
-      console.log(error);
-      console.log("heeeeeeeeeeeeeeeeeeeeeeeeee");
-      console.log(error.message);
       next({ code: 422, message: error.message, result: null });
     }
   };
