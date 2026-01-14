@@ -1,10 +1,11 @@
 const { randomString } = require("../../config/helper.config");
-const nodemailer = require("nodemailer");
+const EmailService = require("../common/mail/email.service");
 
 class AuthController {
   register = async (req, res) => {
+    const payload = req.body;
+
     try {
-      const payload = req.body;
       if (req.files) {
         const images = req.files.map((img) => img.filename);
         payload.images = images;
@@ -25,23 +26,13 @@ class AuthController {
           System admin<br/>
           <small>Please do not reply this email.</small>`;
 
-        const transporter = nodemailer.createTransport({
-          host: "smtp.gmail.com",
-          port: 587,
-          secure: false, // Use true for port 465, false for port 587
-          auth: {
-            user: "rabinpjpt@gmail.com",
-            pass: "knnx nsfk uker qqrb",
-          },
-        });
-
-        await transporter.sendMail({
-          from: "no-reply@gmail.com",
-          to: "rbnpjpt@gmail.com",
-          subject: "User Activation",
-          text: payload.message, // Plain-text version of the message
-          html: message,
-        });
+        const emailSvc = new EmailService();
+        console.log(payload);
+        await emailSvc.sendEmail(
+          payload.email,
+          "Activate your account",
+          message
+        );
       }
 
       res.json({ result: "register user", data: payload, meta: null });
