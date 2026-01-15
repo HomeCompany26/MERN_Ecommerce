@@ -1,8 +1,15 @@
 const router = require("express").Router();
 const authCheck = require("../../middlewares/auth.middleware");
 const authCtrl = require("./auth.controller");
-const validator = require("../../middlewares/validator.middleware");
-const { registerSchema } = require("./auth.request");
+const {
+  validator,
+  paramsValidator,
+} = require("../../middlewares/validator.middleware");
+const {
+  registerSchema,
+  activationToken,
+  passwordSchema,
+} = require("./auth.request");
 const uploader = require("../../middlewares/uploader.middleware");
 
 // register user
@@ -12,8 +19,17 @@ router.post(
   validator(registerSchema),
   authCtrl.register
 );
-router.get("/verify/:token", authCtrl.verifyActivationToken);
-router.post("/activation/:token", authCtrl.activateUser);
+router.get(
+  "/verify/:token",
+  paramsValidator(activationToken),
+  authCtrl.verifyActivationToken
+);
+router.post(
+  "/activation/:token",
+  paramsValidator(activationToken),
+  validator(passwordSchema),
+  authCtrl.activateUser
+);
 
 // login process
 router.post("/login", authCtrl.loginUser);
@@ -23,7 +39,15 @@ router.get("/logout", authCheck, (req, res) => {
 router.get("/me", authCheck, authCtrl.getLoggedInUser);
 
 router.post("/forget-password", authCtrl.sendEmailForForgetPassword);
-router.get("/verify-password-token/:token", authCtrl.verifyForgetPasswordToken);
-router.post("/set-password/:token", authCtrl.updatePassword);
+router.get(
+  "/verify-password-token/:token",
+  paramsValidator(activationToken),
+  authCtrl.verifyForgetPasswordToken
+);
+router.post(
+  "/set-password/:token",
+  paramsValidator(activationToken),
+  authCtrl.updatePassword
+);
 
 module.exports = router;

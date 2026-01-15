@@ -5,5 +5,13 @@ const registerSchema = Joi.object({
   email: Joi.string().email().required(),
   role: Joi.string(),
 });
+const activationToken = Joi.object({
+  token: Joi.string().length(100).required(),
+});
 
-module.exports = { registerSchema };
+const passwordSchema = Joi.object({
+  password: Joi.string().min(5).max(25).required(),
+  repeat_password: Joi.ref("password"),
+});
+
+module.exports = { registerSchema, activationToken, passwordSchema };

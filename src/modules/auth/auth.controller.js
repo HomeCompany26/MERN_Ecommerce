@@ -42,11 +42,14 @@ class AuthController {
   };
 
   verifyActivationToken = (req, res) => {
-    res.json({ result: "token verification", meta: null });
+    let token = req.params;
+    res.json({ result: token, message: "token verification", meta: null });
   };
 
   activateUser = (req, res) => {
-    res.json({ result: "activate user", meta: null });
+    const data = req.body;
+    console.log(data);
+    res.json({ result: "activate userrrr", meta: null });
   };
 
   loginUser = (req, res) => {
