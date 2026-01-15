@@ -11,7 +11,22 @@ const activationToken = Joi.object({
 
 const passwordSchema = Joi.object({
   password: Joi.string().min(5).max(25).required(),
-  repeat_password: Joi.ref("password"),
+  confirm_password: Joi.ref("password"),
 });
 
-module.exports = { registerSchema, activationToken, passwordSchema };
+const loginSchema = Joi.object({
+  email: Joi.string().email().required(),
+  password: Joi.string().min(5).max(25).required(),
+});
+
+const forgetPasswordSchema = Joi.object({
+  email: Joi.string().email().required(),
+});
+
+module.exports = {
+  registerSchema,
+  activationToken,
+  passwordSchema,
+  loginSchema,
+  forgetPasswordSchema,
+};
