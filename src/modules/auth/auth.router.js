@@ -9,6 +9,8 @@ const {
   registerSchema,
   activationToken,
   passwordSchema,
+  loginSchema,
+  forgetPasswordSchema,
 } = require("./auth.request");
 const uploader = require("../../middlewares/uploader.middleware");
 
@@ -32,13 +34,17 @@ router.post(
 );
 
 // login process
-router.post("/login", authCtrl.loginUser);
+router.post("/login", validator(loginSchema), authCtrl.loginUser);
 router.get("/logout", authCheck, (req, res) => {
   res.json({ result: "logout success", meta: null });
 });
 router.get("/me", authCheck, authCtrl.getLoggedInUser);
 
-router.post("/forget-password", authCtrl.sendEmailForForgetPassword);
+router.post(
+  "/forget-password",
+  validator(forgetPasswordSchema),
+  authCtrl.sendEmailForForgetPassword
+);
 router.get(
   "/verify-password-token/:token",
   paramsValidator(activationToken),
@@ -47,6 +53,7 @@ router.get(
 router.post(
   "/set-password/:token",
   paramsValidator(activationToken),
+  validator(passwordSchema),
   authCtrl.updatePassword
 );
 
