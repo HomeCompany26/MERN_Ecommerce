@@ -1,15 +1,16 @@
+require("dotenv").config();
 const nodemailer = require("nodemailer");
 
 class EmailService {
   transporter;
   constructor() {
     this.transporter = nodemailer.createTransport({
-      host: "smtp.gmail.com",
-      port: 587,
-      secure: false, // Use true for port 465, false for port 587
+      host: process.env.SMTP_HOST,
+      port: process.env.SMTP_PORT,
+      secure: process.env.SMTP_SECURE, // Use true for port 465, false for port 587
       auth: {
-        user: "rabinpjpt@gmail.com",
-        pass: "knnx nsfk uker qqrb",
+        user: process.env.SMTP_AUTH_USERNAME,
+        pass: process.env.SMTP_AUTH_PASSWORD,
       },
     });
   }
