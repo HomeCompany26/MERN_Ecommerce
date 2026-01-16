@@ -3,8 +3,11 @@
     "start": "nodemon index.js"
   },
   "dependencies": {
+    "dotenv": "^17.2.3",
     "express": "^5.2.1",
     "joi": "^18.0.2",
+    "mongodb": "^7.0.0",
+    "mongoose": "^9.1.4",
     "multer": "^2.0.2",
     "nodemailer": "^7.0.12"
   }

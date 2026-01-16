@@ -1,5 +1,6 @@
 const express = require("express");
 const app = express();
+const dbConnect = require("./db.config");
 
 const router = require("../routes/router");
 const errorRoutes = require("./error.config");
