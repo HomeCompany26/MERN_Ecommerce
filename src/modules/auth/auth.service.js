@@ -53,6 +53,14 @@ class AuthService {
       throw error;
     }
   };
+  getSingleUserByFilter = (filter) => {
+    try {
+      const user = userModel.findOne(filter);
+      return user;
+    } catch (error) {
+      throw error;
+    }
+  };
 }
 
 const authSvc = new AuthService();

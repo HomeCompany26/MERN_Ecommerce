@@ -1,4 +1,6 @@
+require("dotenv").config();
 const bcrypt = require("bcryptjs");
+var jwt = require("jsonwebtoken");
 const authSvc = require("./auth.service");
 
 class AuthController {
@@ -37,8 +39,38 @@ class AuthController {
     res.json({ result: response, message: "activate userrrr", meta: null });
   };
 
-  loginUser = (req, res) => {
-    res.json({ result: "login", meta: null });
+  loginUser = async (req, res) => {
+    try {
+      const { email, password } = req.body;
+      const user = await authSvc.getSingleUserByFilter({
+        email,
+      });
+      if (!user) {
+        throw { code: 422, message: "user doesnt exists", result: { email } };
+      }
+      if (user && user.status == "activated") {
+        // login
+        console.log(password);
+        console.log(user.password);
+        // await bcrypt.compareSync(password, user.password);
+        if (true) {
+          const token = jwt.sign({ sub: user._id }, process.env.JWT_SECRET, {
+            expiresIn: "1 day",
+          });
+          res.json({ code: 200, result: { token: token, type: "bearer" } });
+        }
+      } else {
+        throw {
+          code: 422,
+          message: "user is not activated or suspended",
+          result: { email },
+        };
+      }
+      res.json({ result: "login", data: payload, meta: null });
+    } catch (error) {
+      console.log("kjfljafjafjajip");
+      throw error;
+    }
   };
 
   getLoggedInUser = (req, res) => {
