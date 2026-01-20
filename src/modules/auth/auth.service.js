@@ -6,9 +6,25 @@ class AuthService {
   //
 
   register = async (payload) => {
-    const user = new userModel(payload);
-    console.log(user);
-    await user.save();
+    try {
+      payload.activationToken = randomString();
+      payload.status = "notactivated";
+      let link = "http://localhost:3000/activate/" + [payload.activationToken];
+      let message = `Dear ${payload.name}, <br/>
+              <p>Your account has been sucessfully registered. please click the link below to activeate your account<p/>
+              <a herf="${link}">${link}</a>
+              <br/>
+              Regards,<br/>
+              System admin<br/>
+              <small>Please do not reply this email.</small>`;
+
+      const emailSvc = new EmailService();
+      await emailSvc.sendEmail(payload.email, "Activate your account", message);
+      const user = new userModel(payload);
+      await user.save();
+    } catch (error) {
+      throw error;
+    }
   };
 
   getUserByActivationToken = async (token) => {
