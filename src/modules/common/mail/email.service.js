@@ -5,20 +5,20 @@ class EmailService {
   transporter;
   constructor() {
     this.transporter = nodemailer.createTransport({
-      host: process.env.SMTP_HOST,
-      port: process.env.SMTP_PORT,
-      secure: process.env.SMTP_SECURE, // Use true for port 465, false for port 587
+      host: "smtp.gmail.com",
+      port: 587,
+      secure: false, // Use true for port 465, false for port 587
       auth: {
-        user: process.env.SMTP_AUTH_USERNAME,
-        pass: process.env.SMTP_AUTH_PASSWORD,
+        user: "rabinpjpt@gmail.com",
+        pass: "knnx nsfk uker qqrb",
       },
     });
   }
   sendEmail = async (to, sub, message) => {
     try {
       await this.transporter.sendMail({
-        from: "no-reply@gmail.com",
-        to: "rbnpjpt@gmail.com",
+        from: process.env.SMTP_FROM_ADDRESS,
+        to: to,
         subject: "User Activation",
         text: message, // Plain-text version of the message
         html: message,
