@@ -1,33 +1,18 @@
-const { randomString } = require("../../config/helper.config");
-const EmailService = require("../common/mail/email.service");
-const userModel = require("../../modules/user/user.model");
+require("dotenv").config();
+const bcrypt = require("bcryptjs");
+var jwt = require("jsonwebtoken");
 const authSvc = require("./auth.service");
 
 class AuthController {
   register = async (req, res) => {
     const payload = req.body;
+    if (req.files) {
+      const images = req.files.map((img) => img.filename);
+      payload.images = images;
+      // console.log(req.files);
+    }
     try {
-      if (req.files) {
-        const images = req.files.map((img) => img.filename);
-        payload.images = images;
-        // console.log(req.files);
-      }
-
-      payload.activationToken = randomString();
-      payload.status = "notactivated";
-      let link = "http://localhost:3000/activate/" + [payload.activationToken];
-      let message = `Dear ${payload.name}, <br/>
-          <p>Your account has been sucessfully registered. please click the link below to activeate your account<p/>
-          <a herf="${link}">${link}</a>
-          <br/>
-          Regards,<br/>
-          System admin<br/>
-          <small>Please do not reply this email.</small>`;
-
-      const emailSvc = new EmailService();
-      console.log(payload);
-      await emailSvc.sendEmail(payload.email, "Activate your account", message);
-      authSvc.register(payload);
+      await authSvc.register(payload);
 
       res.json({ result: "register user", data: payload, meta: null });
     } catch (error) {
@@ -44,19 +29,48 @@ class AuthController {
   activateUser = async (req, res) => {
     const token = req.params.token;
     const user = await authSvc.getUserByActivationToken(token);
+
     const data = {
-      password: req.body.password,
+      password: bcrypt.hashSync(req.body.password, 10),
       activationToken: null,
       status: "activated",
     };
-    console.log(data);
-    console.log(user);
     const response = await authSvc.updateUserById(user._id, data);
     res.json({ result: response, message: "activate userrrr", meta: null });
   };
 
-  loginUser = (req, res) => {
-    res.json({ result: "login", meta: null });
+  loginUser = async (req, res) => {
+    try {
+      const { email, password } = req.body;
+      const user = await authSvc.getSingleUserByFilter({
+        email,
+      });
+      if (!user) {
+        throw { code: 422, message: "user doesnt exists", result: { email } };
+      }
+      if (user && user.status == "activated") {
+        // login
+        console.log(password);
+        console.log(user.password);
+        // await bcrypt.compareSync(password, user.password);
+        if (true) {
+          const token = jwt.sign({ sub: user._id }, process.env.JWT_SECRET, {
+            expiresIn: "1 day",
+          });
+          res.json({ code: 200, result: { token: token, type: "bearer" } });
+        }
+      } else {
+        throw {
+          code: 422,
+          message: "user is not activated or suspended",
+          result: { email },
+        };
+      }
+      res.json({ result: "login", data: payload, meta: null });
+    } catch (error) {
+      console.log("kjfljafjafjajip");
+      throw error;
+    }
   };
 
   getLoggedInUser = (req, res) => {
