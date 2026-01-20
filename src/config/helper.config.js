@@ -1,4 +1,4 @@
-const randomString = (len = 30) => {
+const randomString = (len = 100) => {
   const chars =
     "-123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
   const length = chars.length;
