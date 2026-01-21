@@ -2,6 +2,7 @@ require("dotenv").config();
 const bcrypt = require("bcryptjs");
 var jwt = require("jsonwebtoken");
 const authSvc = require("./auth.service");
+const userModel = require("../user/user.model");
 
 class AuthController {
   register = async (req, res) => {
@@ -57,7 +58,19 @@ class AuthController {
           const token = jwt.sign({ sub: user._id }, process.env.JWT_SECRET, {
             expiresIn: "1 day",
           });
-          res.json({ code: 200, result: { token: token, type: "bearer" } });
+          res.json({
+            code: 200,
+            result: {
+              token: token,
+              type: "bearer",
+              userDetail: {
+                userId: user._id,
+                name: user.name,
+                role: user.role,
+                image: user.image,
+              },
+            },
+          });
         }
       } else {
         throw {
@@ -74,19 +87,58 @@ class AuthController {
   };
 
   getLoggedInUser = (req, res) => {
-    res.json({ result: "I am me", meta: null });
+    const loggedInUser = req.authUser;
+    res.json({ result: loggedInUser, meta: null });
   };
 
-  sendEmailForForgetPassword = (req, res) => {
-    res.json({ result: "forget password", meta: null });
+  sendEmailForForgetPassword = async (req, res, next) => {
+    const { email } = req.body;
+    const response = await authSvc.forgetPasswordMail(email);
+
+    res.json({
+      result: response,
+      message: "An email has been sent to reset password",
+      meta: null,
+    });
   };
 
-  verifyForgetPasswordToken = (req, res) => {
-    res.json({ result: "token verification", meta: null });
+  verifyForgetPasswordToken = async (req, res, next) => {
+    const user = await authSvc.getSingleUserByFilter({
+      forgetPasswordToken: req.params.token,
+    });
+
+    if (user) {
+      res.json({ result: "token verified", meta: null });
+    } else {
+      next({
+        code: 422,
+        message: "token doesnt exists or expired",
+        result: null,
+      });
+    }
   };
 
-  updatePassword = (req, res) => {
-    res.json({ result: "reset password", meta: null });
+  updatePassword = async (req, res) => {
+    try {
+      const user = await authSvc.getSingleUserByFilter({
+        forgetPasswordToken: req.params.token,
+      });
+      if (!user) {
+        res.json({ result: "token expired or invalid", meta: null });
+      }
+      if (user) {
+        const data = {
+          password: bcrypt.hashSync(req.body.password, 10),
+          forgetPasswordToken: null,
+        };
+        await authSvc.updateUserById(user._id, data);
+        res.json({ result: "reset password successful", meta: null });
+      } else {
+        res.json({ result: "user not found", meta: null });
+      }
+    } catch (error) {
+      throw error;
+    }
   };
 }
 const authCtrl = new AuthController();

@@ -61,6 +61,32 @@ class AuthService {
       throw error;
     }
   };
+  forgetPasswordMail = async (email) => {
+    try {
+      const forgetPasswordToken = randomString();
+      const user = await userModel.findOneAndUpdate(
+        { email },
+        { $set: { forgetPasswordToken } },
+      );
+      if (!user) {
+        throw { code: 401, message: "user doenst exists" };
+      }
+      let link = "http://localhost:3000/reset-password/" + forgetPasswordToken;
+      let message = `Dear ${user.name}, <br/>
+              <p>Your account is being reset. please click the link below to reset password<p/>
+              <a herf="${link}">${link}</a>
+              <br/>
+              Regards,<br/>
+              System admin<br/>
+              <small>Please do not reply this email.</small>`;
+
+      const emailSvc = new EmailService();
+      await emailSvc.sendEmail(email, "Reset  account password", message);
+      return forgetPasswordToken;
+    } catch (error) {
+      throw error;
+    }
+  };
 }
 
 const authSvc = new AuthService();
